@@ -1,4 +1,4 @@
-
+import shapeless._
 
 
 sealed abstract class Json
@@ -60,25 +60,38 @@ object JsonEncoder {
 
 
 
-  // implicit val stringEnc: JsonEncoder[String] =
-  //   pure(str => JsonString(str))
+   implicit val stringEnc: JsonEncoder[String] =
+     pure(str => JsonString(str))
 
-  // implicit val intEnc: JsonEncoder[Int] =
-  //   pure(num => JsonNumber(num))
+   implicit val intEnc: JsonEncoder[Int] =
+     pure(num => JsonNumber(num))
 
-  // implicit val doubleEnc: JsonEncoder[Double] =
-  //   pure(num => JsonNumber(num))
+   implicit val doubleEnc: JsonEncoder[Double] =
+     pure(num => JsonNumber(num))
 
-  // implicit val booleanEnc: JsonEncoder[Boolean] =
-  //   pure(bool => JsonBoolean(bool))
+   implicit val booleanEnc: JsonEncoder[Boolean] =
+     pure(bool => JsonBoolean(bool))
 
+   implicit val hnilEnc: JsonObjectEncoder[HNil] =
+     pureObj(hnil => JsonObject(Nil))
 
+  implicit val hnilEncArr: JsonEncoder[HNil] =
+    pure(_ => JsonNull)
 
-  // implicit val hnilEnc: JsonObjectEncoder[HNil] =
-  //   pureObj(hnil => JsonObject(Nil))
+  val ourHList = "head" :: 1 :: HNil
 
-  // implicit def hlistEnc // ...
+   implicit def hListEnc[H, T <: HList](implicit headEnc: Lazy[JsonEncoder[H]], tailEnc: JsonEncoder[T]): JsonEncoder[H :: T] =
+     pure {
+       case h :: t => {
+         val encodedHead: Json = headEnc.value.encode(h)
+         val encodedTail: Json = tailEnc.encode(t) match {
+           case
+         }
+         JsonArray(List(encodedHead, encodedTail))
+       }
+     }
 
+  println(hlistEnc(ourHList))
   // implicit val cnilEnc: JsonObjectEncoder[CNil] =
   //   pureObj(cnil => ???)
 
